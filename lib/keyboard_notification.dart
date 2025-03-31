@@ -12,7 +12,15 @@ abstract class KeyboardNotification {
   /// Keyboard height in logical pixels
   final double height;
 
-  KeyboardNotification({required this.visible, required this.height});
+  /// Part of keyboard height excluding bottom toolbar. In other
+  /// words which part of the keyboard overlaps the app
+  final double overlapHeight;
+
+  KeyboardNotification({
+    required this.visible,
+    required this.height,
+    required this.overlapHeight,
+  });
 
   var _posted = false;
   void post() {
@@ -42,6 +50,7 @@ class KeyboardAnimationStartNotification extends KeyboardNotification {
   KeyboardAnimationStartNotification({
     required super.visible,
     required super.height,
+    required super.overlapHeight,
     required this.duration,
     required this.curve,
     this.didFallback = false,
@@ -58,6 +67,7 @@ class KeyboardAnimationEndNotification extends KeyboardNotification {
   KeyboardAnimationEndNotification({
     required super.visible,
     required super.height,
+    required super.overlapHeight,
   });
 
   @override

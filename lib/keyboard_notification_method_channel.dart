@@ -36,13 +36,13 @@ class MethodChannelKeyboardNotification extends KeyboardNotificationPlatform {
   }
 
   Future<dynamic> _methodHandler(MethodCall call) async {
-    print('Call: ${call.method}');
+    // print('Call: ${call.method}');
     switch (call.method) {
       case 'keyboard_notification_animation_start':
         {
-          print('Precision: ${call.arguments['precision'] as double}');
-
+          final visible = call.arguments['visible'] as bool;
           final precision = call.arguments['precision'] as double?;
+          final curveType = call.arguments['curveType'] as int?;
           Curve? curve;
           if (precision != null) {
             final points = call.arguments['curvePoints'] as List<Object?>;
@@ -50,6 +50,19 @@ class MethodChannelKeyboardNotification extends KeyboardNotificationPlatform {
               points: points.cast<double>(),
               precision: precision,
             );
+          } else if (curveType != null) {
+            switch (curveType) {
+              case 0:
+                curve = Curves.easeInOut;
+              case 1:
+                curve = Curves.easeIn;
+              case 2:
+                curve = Curves.easeOut;
+              case 3:
+                curve = Curves.linear;
+              default:
+                curve = Curves.decelerate;
+            }
           } else {
             curve = Curves.linear;
           }
@@ -57,6 +70,7 @@ class MethodChannelKeyboardNotification extends KeyboardNotificationPlatform {
           KeyboardAnimationStartNotification(
             visible: call.arguments['visible'] as bool,
             height: call.arguments['height'] as double,
+            overlapHeight: call.arguments['overlapHeight'] as double,
             duration: Duration(milliseconds: call.arguments['duration'] as int),
             curve: curve,
           ).post();
@@ -66,6 +80,7 @@ class MethodChannelKeyboardNotification extends KeyboardNotificationPlatform {
           KeyboardAnimationEndNotification(
             visible: call.arguments['visible'] as bool,
             height: call.arguments['height'] as double,
+            overlapHeight: call.arguments['overlapHeight'] as double,
           ).post();
         }
       case 'keyboard_notification_toggle':
@@ -73,6 +88,7 @@ class MethodChannelKeyboardNotification extends KeyboardNotificationPlatform {
           _simulateAnimationNotification(
             visible: call.arguments['visible'] as bool,
             height: call.arguments['height'] as double,
+            overlapHeight: call.arguments['overlapHeight'] as double,
           );
         }
       default:
@@ -83,15 +99,21 @@ class MethodChannelKeyboardNotification extends KeyboardNotificationPlatform {
   Future<void> _simulateAnimationNotification({
     required bool visible,
     required double height,
+    required double overlapHeight,
   }) async {
     KeyboardAnimationStartNotification(
       visible: visible,
       height: height,
+      overlapHeight: overlapHeight,
       duration: Duration(milliseconds: 300),
       curve: Curves.linear,
       didFallback: true,
     ).post();
     await Future.delayed(Duration(milliseconds: 300));
-    KeyboardAnimationEndNotification(visible: visible, height: height).post();
+    KeyboardAnimationEndNotification(
+      visible: visible,
+      overlapHeight: overlapHeight,
+      height: height,
+    ).post();
   }
 }

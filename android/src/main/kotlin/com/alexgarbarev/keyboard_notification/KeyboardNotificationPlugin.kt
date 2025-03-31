@@ -120,12 +120,19 @@ class LegacyKeyboardNotificationObserver(private val view: View, private val den
     val screenHeight = view.rootView.height
     val keyboardHeight = screenHeight - rect.bottom
 
+    val bottomBars = view.rootWindowInsets.getInsets(WindowInsets.Type.systemBars()).bottom
+    val keyboardOverlapHeight = keyboardHeight - bottomBars
+
     // If visible screen height is less than 85% of screen, then
     // keyboard is opened
     val isVisibleNow = rect.height() / screenHeight.toDouble() < 0.85;
     if (isVisibleNow != isVisible) {
       isVisible = isVisibleNow
-      channel.invokeMethod("keyboard_notification_toggle", mapOf("height" to keyboardHeight.toFloat() / density, "visible" to isVisible))
+      channel.invokeMethod("keyboard_notification_toggle", mapOf(
+        "height" to keyboardHeight.toFloat() / density,
+        "overlapHeight" to keyboardOverlapHeight.toFloat() / density,
+        "visible" to isVisible)
+      )
       Log.i("KEYBOARD_NOTIFICATION_LOG", "Sent 'keyboard_notification_toggle'")
     }
   }
@@ -134,6 +141,7 @@ class LegacyKeyboardNotificationObserver(private val view: View, private val den
 class KeyboardNotificationObserver(private val view: View, private val density: Float, private val channel: MethodChannel, public var curvePrecision: Float): WindowInsetsAnimationCompat.Callback(DISPATCH_MODE_CONTINUE_ON_SUBTREE) {
 
   private var lastKeyboardHeight = 0.0f;
+  private var lastKeyboardOverlapHeight = 0.0f;
 
   override fun onStart(
     animation: WindowInsetsAnimationCompat,
@@ -143,10 +151,12 @@ class KeyboardNotificationObserver(private val view: View, private val density: 
       return super.onStart(animation, bounds)
     }
 
+    val bottomBars = view.rootWindowInsets.getInsets(WindowInsets.Type.systemBars()).bottom
+
     val isKeyboardVisible = view.rootWindowInsets.isVisible(WindowInsets.Type.ime())
     val keyboardHeight = bounds.upperBound.bottom.toFloat() / density
+    val keyboardOverlapHeight = (bounds.upperBound.bottom.toFloat() - bottomBars) / density
 
-//    Log.i("KEYBOARD_NOTIFICATION_LOG", "bounds = ${bounds}, = ${view.rootWindowInsets}")
 
     val interpolator = animation.interpolator
 
@@ -164,15 +174,16 @@ class KeyboardNotificationObserver(private val view: View, private val density: 
 
     channel.invokeMethod("keyboard_notification_animation_start", mapOf(
       "height" to keyboardHeight,
+      "overlapHeight" to keyboardOverlapHeight,
       "visible" to isKeyboardVisible,
       "duration" to animation.durationMillis,
       "precision" to precision,
       "curvePoints" to points)
     )
-    Log.i("KEYBOARD_NOTIFICATION_LOG", "Sent 'keyboard_notification_animation_start' with height: $keyboardHeight")
-
+//    Log.i("KEYBOARD_NOTIFICATION_LOG", "Sent 'keyboard_notification_animation_start' with height: $keyboardHeight")
 
     lastKeyboardHeight = keyboardHeight
+    lastKeyboardOverlapHeight = keyboardOverlapHeight
 
     return super.onStart(animation, bounds)
   }
@@ -186,9 +197,10 @@ class KeyboardNotificationObserver(private val view: View, private val density: 
     val isKeyboardVisible = view.rootWindowInsets.isVisible(WindowInsets.Type.ime())
     channel.invokeMethod("keyboard_notification_animation_end", mapOf(
       "height" to lastKeyboardHeight,
+      "overlapHeight" to lastKeyboardOverlapHeight,
       "visible" to isKeyboardVisible)
     )
-    Log.i("KEYBOARD_NOTIFICATION_LOG", "Sent 'keyboard_notification_animation_end'")
+//    Log.i("KEYBOARD_NOTIFICATION_LOG", "Sent 'keyboard_notification_animation_end'")
     super.onEnd(animation)
   }
 
