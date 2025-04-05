@@ -23,14 +23,4 @@ abstract class KeyboardNotificationPlatform extends PlatformInterface {
     PlatformInterface.verifyToken(instance, _token);
     _instance = instance;
   }
-
-  Future<String?> getPlatformVersion() async {
-    print('Skipped platform version check');
-    return null;
-    // throw UnimplementedError('platformVersion() has not been implemented.');
-  }
-
-  void setCurvePrecision(double precision) {
-    // Nothing to do
-  }
 }

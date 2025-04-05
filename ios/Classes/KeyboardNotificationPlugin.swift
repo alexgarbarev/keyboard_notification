@@ -24,31 +24,15 @@ public class KeyboardNotificationPlugin: NSObject, FlutterPlugin {
     
     @objc
     func onKeyboardNotification(_ notification: Notification) {
-        let bottomInsets = UIApplication.shared.keyWindow?.safeAreaInsets.bottom ?? 0
         let bounds = notification.userInfo?["UIKeyboardBoundsUserInfoKey"] as? CGRect ?? .zero
-    
-
-        
         if (notification.name == UIResponder.keyboardWillShowNotification || notification.name == UIResponder.keyboardWillHideNotification) {
-            let duration = notification.userInfo?["UIKeyboardAnimationDurationUserInfoKey"] as? TimeInterval ?? 0
-            let curve = notification.userInfo?["UIKeyboardAnimationCurveUserInfoKey"] as? Int ?? 0
-            
-//            let options = UIView.AnimationOptions(rawValue: UInt(curve) << 16)
-//            let ccc = UIView.AnimationCurve(rawValue: curve)
-            
-//            print("Animation options: \(options), \(UIView.AnimationOptions.curveEaseInOut), \(ccc.)")
-            
             channel.invokeMethod("keyboard_notification_animation_start", arguments: [
                 "height": bounds.height,
-                "overlapHeight": bounds.height - bottomInsets,
                 "visible": notification.name == UIResponder.keyboardWillShowNotification,
-                "duration": Int(duration * 1000),
-                "curveType": curve
             ])
         } else {
             channel.invokeMethod("keyboard_notification_animation_end", arguments: [
                 "height": bounds.height,
-                "overlapHeight": bounds.height - bottomInsets,
                 "visible": notification.name == UIResponder.keyboardDidShowNotification
             ])
         }

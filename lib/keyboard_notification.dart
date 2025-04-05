@@ -1,6 +1,6 @@
-import 'package:flutter/cupertino.dart';
-
 import 'keyboard_notification_platform_interface.dart';
+
+export 'keyboard_animated_builder.dart';
 
 final _observers = <int, WeakReference<KeyboardObserver>>{};
 
@@ -12,15 +12,7 @@ abstract class KeyboardNotification {
   /// Keyboard height in logical pixels
   final double height;
 
-  /// Part of keyboard height excluding bottom toolbar. In other
-  /// words which part of the keyboard overlaps the app
-  final double overlapHeight;
-
-  KeyboardNotification({
-    required this.visible,
-    required this.height,
-    required this.overlapHeight,
-  });
+  KeyboardNotification({required this.visible, required this.height});
 
   var _posted = false;
   void post() {
@@ -37,28 +29,14 @@ abstract class KeyboardNotification {
 
 /// Posted right before keyboard animation is started
 class KeyboardAnimationStartNotification extends KeyboardNotification {
-  /// Animation duration to show/hide keyboard
-  final Duration duration;
-
-  /// Animation curve to sync UI with the keyboard appearance
-  final Curve curve;
-
-  /// If didFallback is true, then [duration] and [curve] values are guessed,
-  /// as we are running on old Android API level and can't check exact ones
-  final bool didFallback;
-
   KeyboardAnimationStartNotification({
     required super.visible,
     required super.height,
-    required super.overlapHeight,
-    required this.duration,
-    required this.curve,
-    this.didFallback = false,
   });
 
   @override
   String toString() {
-    return 'KeyboardAnimationStartNotification(visible: $visible, height: $height, duration: $duration, curve: $curve, didFallback: $didFallback)';
+    return 'KeyboardAnimationStartNotification(visible: $visible, height: $height)';
   }
 }
 
@@ -67,7 +45,6 @@ class KeyboardAnimationEndNotification extends KeyboardNotification {
   KeyboardAnimationEndNotification({
     required super.visible,
     required super.height,
-    required super.overlapHeight,
   });
 
   @override
@@ -84,18 +61,6 @@ class KeyboardObserver {
 
   KeyboardObserver() {
     _observers[identityHashCode(this)] = WeakReference(this);
-  }
-
-  /// Specifies curve precision for Android, where curve is built using
-  /// interpolator
-  /// This method sets precision globally, so it would affect all
-  /// KeyboardObservers (existing and in the future)
-  void setCurvePrecision(double precision) {
-    try {
-      KeyboardNotificationPlatform.instance.setCurvePrecision(precision);
-    } catch (e) {
-      print('Unable to setCurvePrecision: $e');
-    }
   }
 
   void addListener(KeyboardNotificationListener listener) {
