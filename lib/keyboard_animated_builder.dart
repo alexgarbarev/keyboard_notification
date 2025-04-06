@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter/foundation.dart';
 import 'package:keyboard_notification/keyboard_notification.dart';
 
 enum KeyboardAnimationState {
@@ -21,8 +22,14 @@ enum KeyboardAnimationState {
 
 class KeyboardState {
   final KeyboardAnimationState animationState;
+
+  /// Current portion of keyboard which is visible. Changes between 0 to 1 during animation
   final double visibility;
+
+  /// Current height of the keyboard - it changes every frame during animation
   final double height;
+
+  /// Total height of the keyboard
   final double totalHeight;
   KeyboardState({
     required this.animationState,
@@ -41,6 +48,10 @@ class KeyboardState {
         return 1.0 - visibility;
     }
   }
+
+  bool get isOpened => animationState == KeyboardAnimationState.none && visibility == 1.0;
+  bool get isClosed => animationState == KeyboardAnimationState.none && visibility == 0.0;
+  bool get isAnimating => animationState != KeyboardAnimationState.none;
 
   @override
   String toString() {
@@ -102,16 +113,16 @@ class _KeyboardAnimatedBuilderState extends State<KeyboardAnimatedBuilder>
 
   @override
   void didChangeMetrics() {
-    if (keyboardStartNote != null) {
-      setState(() {
+    if (keyboardStartNote != null || kIsWeb || keyboard?.isOpened == true) {
+      _updateKeyboardState(() {
         keyboard = _getKeyboardState();
-        widget.onChange?.call(keyboard!);
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
+
     assert(
       widget.builder != null || widget.child != null,
       'Either builder or child must be provided',
@@ -126,21 +137,20 @@ class _KeyboardAnimatedBuilderState extends State<KeyboardAnimatedBuilder>
 
   void _onKeyboardNotification(KeyboardNotification note) {
     if (note is KeyboardAnimationStartNotification) {
-      setState(() {
+      _updateKeyboardState(() {
         keyboardStartNote = note;
         keyboard = _getKeyboardState();
-        widget.onChange?.call(keyboard!);
       });
     } else if (note is KeyboardAnimationEndNotification) {
-      setState(() {
+      _updateKeyboardState(() {
         keyboardStartNote = null;
+        final isOpened = keyboard!.animationState == KeyboardAnimationState.opening;
         keyboard = KeyboardState(
           animationState: KeyboardAnimationState.none,
-          visibility: keyboard!.visibility,
-          height: keyboard!.height,
+          visibility: isOpened ? 1.0 : 0.0,
+          height: isOpened ? keyboard!.totalHeight : 0.0,
           totalHeight: keyboard!.totalHeight,
         );
-        widget.onChange?.call(keyboard!);
       });
     }
   }
@@ -180,5 +190,14 @@ class _KeyboardAnimatedBuilderState extends State<KeyboardAnimatedBuilder>
         totalHeight: 0,
       );
     }
+  }
+
+  void _updateKeyboardState(void Function() callback) {
+    if (widget.builder != null) {
+      setState(callback);
+    } else {
+      callback();
+    }
+    widget.onChange?.call(keyboard!);
   }
 }

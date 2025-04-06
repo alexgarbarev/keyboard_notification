@@ -56,7 +56,6 @@ class KeyboardAnimationEndNotification extends KeyboardNotification {
 typedef KeyboardNotificationListener = void Function(KeyboardNotification note);
 
 class KeyboardObserver {
-  bool initialized = false;
   final _listeners = <KeyboardNotificationListener>[];
 
   KeyboardObserver() {

@@ -7,21 +7,34 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
+import 'package:keyboard_notification/keyboard_tester.dart';
 import 'package:keyboard_notification_example/main.dart';
 
 void main() {
-  testWidgets('Verify Platform version', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('Verify keyboard visibility changes', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const ExampleAnimations());
 
-    // Verify that platform version is retrieved.
+    tester.setKeyboardVisible(true);
+    await tester.pumpAndSettle();
+
+    var visibilitySemantics = find.byWidgetPredicate(
+      (widget) => widget is Text && widget.semanticsLabel == 'visibility',
+    );
+
+    expect(visibilitySemantics, findsOneWidget);
     expect(
-      find.byWidgetPredicate(
-        (Widget widget) => widget is Text &&
-                           widget.data!.startsWith('Running on:'),
-      ),
-      findsOneWidget,
+      tester.widget<Text>(visibilitySemantics).data,
+      contains('visibility: 1.0'),
+    );
+
+    tester.setKeyboardVisible(false);
+    await tester.pumpAndSettle();
+
+    expect(
+      tester.widget<Text>(visibilitySemantics).data,
+      contains('visibility: 0.0'),
     );
   });
 }

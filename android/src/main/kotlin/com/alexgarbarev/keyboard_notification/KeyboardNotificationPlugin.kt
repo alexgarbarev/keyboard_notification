@@ -5,7 +5,6 @@ import android.app.Activity
 import android.content.res.Resources
 import android.graphics.Rect
 import android.os.Build
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
@@ -104,17 +103,15 @@ class LegacyKeyboardNotificationObserver(private val view: View, private val den
     view.getWindowVisibleDisplayFrame(rect)
     val screenHeight = view.rootView.height
 
-    val bottomBars = view.rootWindowInsets.getInsets(WindowInsets.Type.systemBars()).bottom
-    val keyboardOverlapHeight = screenHeight - rect.bottom - bottomBars
+    val keyboardHeight = screenHeight - rect.bottom
 
     val isVisibleNow = rect.height() / screenHeight.toDouble() < 0.85;
     if (isVisibleNow != isVisible) {
       isVisible = isVisibleNow
       channel.invokeMethod("keyboard_notification_toggle", mapOf(
-        "height" to keyboardOverlapHeight.toFloat() / density,
+        "height" to keyboardHeight.toFloat() / density,
         "visible" to isVisible)
       )
-      Log.i("KEYBOARD_NOTIFICATION_LOG", "Sent 'keyboard_notification_toggle'")
     }
   }
 }
