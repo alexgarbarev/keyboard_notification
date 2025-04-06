@@ -1,7 +1,7 @@
 name: keyboard_notification
-description: "A new Flutter plugin project."
-version: 0.0.1
-homepage:
+description: "Keyboard notifications and keyboard-synced animations"
+version: 1.0.0
+homepage: https://github.com/alexgarbarev/keyboard_notification
 
 environment:
   sdk: ^3.7.2
