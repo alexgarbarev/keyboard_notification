@@ -49,8 +49,10 @@ class KeyboardState {
     }
   }
 
-  bool get isOpened => animationState == KeyboardAnimationState.none && visibility == 1.0;
-  bool get isClosed => animationState == KeyboardAnimationState.none && visibility == 0.0;
+  bool get isOpened =>
+      animationState == KeyboardAnimationState.none && visibility == 1.0;
+  bool get isClosed =>
+      animationState == KeyboardAnimationState.none && visibility == 0.0;
   bool get isAnimating => animationState != KeyboardAnimationState.none;
 
   @override
@@ -122,7 +124,6 @@ class _KeyboardAnimatedBuilderState extends State<KeyboardAnimatedBuilder>
 
   @override
   Widget build(BuildContext context) {
-
     assert(
       widget.builder != null || widget.child != null,
       'Either builder or child must be provided',
@@ -144,7 +145,8 @@ class _KeyboardAnimatedBuilderState extends State<KeyboardAnimatedBuilder>
     } else if (note is KeyboardAnimationEndNotification) {
       _updateKeyboardState(() {
         keyboardStartNote = null;
-        final isOpened = keyboard!.animationState == KeyboardAnimationState.opening;
+        final isOpened =
+            keyboard!.animationState == KeyboardAnimationState.opening;
         keyboard = KeyboardState(
           animationState: KeyboardAnimationState.none,
           visibility: isOpened ? 1.0 : 0.0,
