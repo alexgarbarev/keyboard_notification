@@ -6,6 +6,11 @@ This package aimed to solve 2 problems:
 2) Getting system notification when keyboard start/finish the animation, and it's height
 
 
+![iOS](./gifs/ios.gif)
+![Android API 29](./gifs/android_29.gif)
+![Android API 31](./gifs/android_31.gif)
+![Web](./gifs/web.gif)
+
 ## Animate in sync with keyboard
 
 To animate your UI together with the keyboard use `KeyboardAnimatedBuilder` widget.
