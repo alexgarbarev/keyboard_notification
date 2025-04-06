@@ -110,16 +110,30 @@ Keyboard appearing/disappearing and animations testing is limited in Flutter, as
 during text field editing, and even `showKeyboard` method doesn't adjust bottom insets, in case we want to
 see how keyboard affect our layout.
 
-To deal with that issue, this package includes an extension to `WidgetTester` that can simulate keyboard notifications
-and bottom insets. It works with together with `KeyboardAnimatedBuilder`.
+To deal with that issue, we can use folloing extension to `WidgetTester` that can simulate keyboard notifications and bottom insets:
+```dart
+extension KeyboardTester on WidgetTester {
+  void setKeyboardVisible(bool visible, {double? height}) {
+    double keyboardHeight = height ?? (view.physicalSize.height * 0.4);
+    KeyboardAnimationStartNotification(
+      visible: visible,
+      height: keyboardHeight,
+    ).post();
+    view.viewInsets = FakeViewPadding(bottom: keyboardHeight);
+    KeyboardAnimationEndNotification(
+      visible: visible,
+      height: keyboardHeight,
+    ).post();
+  }
+}
+```
+It also works well together with `KeyboardAnimatedBuilder`.
 
-Just import it and use as `tester.setKeyboardVisible(true);`
+Just use as `tester.setKeyboardVisible(true);`
 
 Example:
 
 ```dart
-import 'package:keyboard_notification/keyboard_tester.dart';
-  ... 
     tester.setKeyboardVisible(true);
     await tester.pumpAndSettle();
 ```

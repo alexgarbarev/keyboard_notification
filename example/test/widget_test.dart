@@ -7,8 +7,23 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:keyboard_notification/keyboard_tester.dart';
+import 'package:keyboard_notification/keyboard_notification.dart';
 import 'package:keyboard_notification_example/main.dart';
+
+extension KeyboardTester on WidgetTester {
+  void setKeyboardVisible(bool visible, {double? height}) {
+    double keyboardHeight = height ?? (view.physicalSize.height * 0.4);
+    KeyboardAnimationStartNotification(
+      visible: visible,
+      height: keyboardHeight,
+    ).post();
+    view.viewInsets = FakeViewPadding(bottom: keyboardHeight);
+    KeyboardAnimationEndNotification(
+      visible: visible,
+      height: keyboardHeight,
+    ).post();
+  }
+}
 
 void main() {
   testWidgets('Verify keyboard visibility changes', (

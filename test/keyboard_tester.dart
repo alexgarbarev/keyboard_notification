@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-
-import 'keyboard_notification.dart';
+import 'package:keyboard_notification/keyboard_notification.dart';
 
 extension KeyboardTester on WidgetTester {
   void setKeyboardVisible(bool visible, {double? height}) {
