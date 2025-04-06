@@ -1,5 +1,7 @@
 # Keyboard Notification
 
+[![pub package](https://img.shields.io/pub/v/keyboard_notification.svg?label=keyboard_notification&color=blue)](https://pub.dev/packages/keyboard_notification)
+
 This package aimed to solve 2 problems:
 
 1) Animate your custom UI in sync with the keyboard animation
