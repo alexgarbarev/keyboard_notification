@@ -1,5 +1,5 @@
-import 'package:flutter/widgets.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:keyboard_notification/keyboard_notification.dart';
 
 enum KeyboardAnimationState {
@@ -31,11 +31,16 @@ class KeyboardState {
 
   /// Total height of the keyboard
   final double totalHeight;
+
+  /// Total screen size (needed to calculate keyboard Rect)
+  final Size screenSize;
+
   KeyboardState({
     required this.animationState,
     required this.visibility,
     required this.height,
     required this.totalHeight,
+    required this.screenSize,
   });
 
   double get animation {
@@ -49,8 +54,29 @@ class KeyboardState {
     }
   }
 
+  Rect get rect =>
+      Rect.fromLTWH(0, screenSize.height - height, screenSize.width, height);
+
+  Rect get targetRect {
+    if (isOpening) {
+      return Rect.fromLTWH(
+        0,
+        screenSize.height - totalHeight,
+        screenSize.width,
+        totalHeight,
+      );
+    }
+    if (isClosing) {
+      return Rect.fromLTWH(0, screenSize.height, screenSize.width, 0);
+    }
+    return rect;
+  }
+
+  bool get isOpening => animationState == KeyboardAnimationState.opening;
   bool get isOpened =>
       animationState == KeyboardAnimationState.none && visibility == 1.0;
+
+  bool get isClosing => animationState == KeyboardAnimationState.closing;
   bool get isClosed =>
       animationState == KeyboardAnimationState.none && visibility == 0.0;
   bool get isAnimating => animationState != KeyboardAnimationState.none;
@@ -152,6 +178,7 @@ class _KeyboardAnimatedBuilderState extends State<KeyboardAnimatedBuilder>
           visibility: isOpened ? 1.0 : 0.0,
           height: isOpened ? keyboard!.totalHeight : 0.0,
           totalHeight: keyboard!.totalHeight,
+          screenSize: keyboard!.screenSize,
         );
       });
     }
@@ -173,6 +200,10 @@ class _KeyboardAnimatedBuilderState extends State<KeyboardAnimatedBuilder>
         visibility: visibility,
         height: height,
         totalHeight: totalHeight,
+        screenSize: Size(
+          view.physicalSize.width / view.devicePixelRatio,
+          view.physicalSize.height / view.devicePixelRatio,
+        ),
       );
     }
 
@@ -183,6 +214,10 @@ class _KeyboardAnimatedBuilderState extends State<KeyboardAnimatedBuilder>
         visibility: 1.0,
         height: view.viewInsets.bottom / view.devicePixelRatio,
         totalHeight: view.viewInsets.bottom / view.devicePixelRatio,
+        screenSize: Size(
+          view.physicalSize.width / view.devicePixelRatio,
+          view.physicalSize.height / view.devicePixelRatio,
+        ),
       );
     } else {
       return KeyboardState(
@@ -190,6 +225,10 @@ class _KeyboardAnimatedBuilderState extends State<KeyboardAnimatedBuilder>
         visibility: 0.0,
         height: 0,
         totalHeight: 0,
+        screenSize: Size(
+          view.physicalSize.width / view.devicePixelRatio,
+          view.physicalSize.height / view.devicePixelRatio,
+        ),
       );
     }
   }
