@@ -1,6 +1,6 @@
 name: keyboard_notification
 description: "Keyboard notifications and keyboard-synced animations"
-version: 1.0.0
+version: 1.0.1
 homepage: https://github.com/alexgarbarev/keyboard_notification
 
 environment:
